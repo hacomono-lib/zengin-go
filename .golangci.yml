@@ -1,0 +1,113 @@
+run:
+  timeout: 5m
+  go: '1.23'
+
+linters:
+  enable:
+    # Basic
+    - gofmt
+    - goimports
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - ineffassign
+    
+    # Style
+    - misspell
+    - gocritic
+    - gocyclo
+    - dupl
+    - gosimple
+    
+    # Security
+    - gosec
+    
+    # Best practices
+    - unconvert
+    - unparam
+    - nakedret
+    - prealloc
+    - exportloopref
+    
+    # Error handling
+    - errorlint
+    - wrapcheck
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - shadow
+  
+  gofmt:
+    simplify: true
+  
+  goimports:
+    local-prefixes: github.com/hacomono-lib/zengin-go
+  
+  misspell:
+    locale: US
+  
+  gocyclo:
+    min-complexity: 15
+  
+  dupl:
+    threshold: 100
+  
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+      - experimental
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+  
+  gosec:
+    excludes:
+      - G104 # Errors unhandled - covered by errcheck
+  
+  errorlint:
+    errorf: true
+    asserts: true
+    comparison: true
+  
+  wrapcheck:
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - errors.Join(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
+  # Exclude some linters from running on tests files
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - dupl
+        - gosec
+        - wrapcheck
+    
+    # Exclude known issues
+    - text: "Error return value of .((os\\.)?std(out|err)\\..*|.*Close|.*Flush|os\\.Remove(All)?|.*print(f|ln)?|os\\.(Un)?Setenv). is not checked"
+      linters:
+        - errcheck
+    
+    - text: "exported: exported method .*\\.(MarshalJSON|UnmarshalJSON).* should have comment or be unexported"
+      linters:
+        - revive
+

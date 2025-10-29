@@ -1,0 +1,90 @@
+version: '3.9'
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - .:/workspace
+      - go-modules:/go/pkg/mod
+    working_dir: /workspace
+    command: bash
+    stdin_open: true
+    tty: true
+    environment:
+      - GO111MODULE=on
+      - CGO_ENABLED=1
+    networks:
+      - zengin-network
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - .:/workspace
+      - go-modules:/go/pkg/mod
+    working_dir: /workspace
+    command: make test
+    environment:
+      - GO111MODULE=on
+      - CGO_ENABLED=1
+    networks:
+      - zengin-network
+
+  lint:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - .:/workspace
+      - go-modules:/go/pkg/mod
+    working_dir: /workspace
+    command: make lint
+    environment:
+      - GO111MODULE=on
+    networks:
+      - zengin-network
+
+  security:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - .:/workspace
+      - go-modules:/go/pkg/mod
+    working_dir: /workspace
+    command: make security
+    environment:
+      - GO111MODULE=on
+    networks:
+      - zengin-network
+
+  example:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - .:/workspace
+      - go-modules:/go/pkg/mod
+    working_dir: /workspace
+    command: make example
+    environment:
+      - GO111MODULE=on
+    networks:
+      - zengin-network
+
+volumes:
+  go-modules:
+    driver: local
+
+networks:
+  zengin-network:
+    driver: bridge
+
