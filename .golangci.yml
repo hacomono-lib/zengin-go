@@ -7,7 +7,6 @@ run:
 linters:
   enable:
     # Basic
-    - goimports
     - govet
     - errcheck
     - staticcheck
@@ -40,9 +39,6 @@ linters-settings:
     enable-all: true
     disable:
       - shadow
-  
-  goimports:
-    local-prefixes: github.com/hacomono-lib/zengin-go
   
   misspell:
     locale: US
