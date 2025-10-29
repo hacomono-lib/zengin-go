@@ -134,6 +134,68 @@ If you prefer to develop in a containerized environment:
    - Reopen the project in a container
    - All tools will be automatically installed
 
+## Release Process
+
+> **Note:** Only maintainers with write access can create releases.
+
+### How to Release a New Version
+
+1. **Update CHANGELOG.md**
+   - Move items from `[Unreleased]` section to a new version section
+   - Follow [Semantic Versioning](https://semver.org/):
+     - `MAJOR` version for incompatible API changes
+     - `MINOR` version for new functionality in a backward compatible manner
+     - `PATCH` version for backward compatible bug fixes
+   
+   Example:
+   ```markdown
+   ## [Unreleased]
+   
+   ## [1.0.0] - 2025-10-29
+   
+   ### Added
+   - Initial release of zengin-go
+   - Support for Japanese bank and branch code lookup
+   ```
+
+2. **Commit the CHANGELOG update**
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "chore: prepare release v1.0.0"
+   git push origin main
+   ```
+
+3. **Create and push a git tag**
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+4. **Automated Release**
+   - GitHub Actions will automatically:
+     - Run all tests and linters
+     - Extract the changelog for this version
+     - Create a GitHub Release with release notes
+     - The release will include installation instructions
+
+5. **Verify the Release**
+   - Check the [Releases](https://github.com/hacomono-lib/zengin-go/releases) page
+   - Verify that users can install the new version:
+     ```bash
+     go get github.com/hacomono-lib/zengin-go@v1.0.0
+     ```
+
+### Release Checklist
+
+Before creating a release:
+
+- [ ] All CI checks are passing on main branch
+- [ ] CHANGELOG.md is updated with the new version
+- [ ] Version follows semantic versioning
+- [ ] Breaking changes are clearly documented (if any)
+- [ ] All new features are documented
+- [ ] Tests cover new functionality
+
 ## License
 
 By contributing to zengin-go, you agree that your contributions will be licensed under the MIT License.
