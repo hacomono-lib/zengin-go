@@ -17,6 +17,8 @@ go get github.com/hacomono-lib/zengin-go
 
 ## Usage
 
+The library automatically preloads all bank and branch data at startup. Just import and use:
+
 ```go
 package main
 
@@ -26,20 +28,19 @@ import (
 )
 
 func main() {
-    z, err := zengin.New()
-    if err != nil {
-        panic(err)
-    }
+    // Get all banks
+    banks := zengin.AllBanks()
+    fmt.Printf("Total banks: %d\n", len(banks))
 
-    // Get bank by code
-    bank, err := z.GetBank("0001")
+    // Find bank by code
+    bank, err := zengin.FindBank("0001")
     if err != nil {
         panic(err)
     }
     fmt.Printf("Found bank: %s\n", bank.Name)
 
     // Find banks by name pattern (regex)
-    banks, err := z.FindBanksByName(".*みずほ.*")
+    banks, err := zengin.FindBanksByName(".*みずほ.*")
     if err != nil {
         panic(err)
     }
@@ -47,21 +48,31 @@ func main() {
         fmt.Printf("Found bank: %s\n", bank.Name)
     }
 
-    // Get branch by bank code and branch code
-    branch, err := z.GetBranch("0001", "001")
+    // Find branch by bank code and branch code
+    branch, err := zengin.FindBranch("0001", "001")
     if err != nil {
         panic(err)
     }
     fmt.Printf("Found branch: %s\n", branch.Name)
+    
+    // Branch has reference to Bank (bidirectional relationship)
+    fmt.Printf("Branch's bank: %s\n", branch.Bank.Name)
 
     // Find branches by name pattern (regex)
-    branches, err := z.FindBranchesByName("0001", ".*本店.*")
+    branches, err := zengin.FindBranchesByName("0001", ".*本店.*")
     if err != nil {
         panic(err)
     }
     for _, branch := range branches {
         fmt.Printf("Found branch: %s\n", branch.Name)
     }
+    
+    // Get all branches for a bank
+    allBranches, err := zengin.AllBranches("0001")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("Total branches: %d\n", len(allBranches))
 }
 ```
 
@@ -70,6 +81,8 @@ func main() {
 - 🚀 Zero external dependencies (data is embedded using go:embed)
 - 📦 Full support for all Japanese banks and branches
 - 🔍 Powerful search capabilities with regex support
+- 🔄 Bidirectional relationship between Bank and Branch
+- 🎯 Simple API - just import and use (similar to zengin-rb)
 - 🧪 Comprehensive test coverage
 - 🔄 Automated data updates via GitHub Actions
 
@@ -184,14 +197,16 @@ All checks must pass before merging pull requests.
 
 ```go
 type Bank struct {
-    Code string `json:"code"` // Bank code
-    Name string `json:"name"` // Bank name
-    Kana string `json:"kana"` // Katakana
-    Hira string `json:"hira"` // Hiragana
-    Roma string `json:"roma"` // Romaji
+    Code     string              `json:"code"`               // Bank code
+    Name     string              `json:"name"`               // Bank name
+    Kana     string              `json:"kana"`               // Katakana
+    Hira     string              `json:"hira"`               // Hiragana
+    Roma     string              `json:"roma"`               // Romaji
+    Branches map[string]*Branch `json:"branches,omitempty"` // Branches (key: branch code)
 }
 
 type Branch struct {
+    Bank *Bank  `json:"-"`    // Reference to parent bank (bidirectional)
     Code string `json:"code"` // Branch code
     Name string `json:"name"` // Branch name
     Kana string `json:"kana"` // Katakana
@@ -200,15 +215,30 @@ type Branch struct {
 }
 ```
 
-### Methods
+### Functions
 
-- `New() (*Zengin, error)` - Create a new Zengin instance
-- `GetBank(code string) (*Bank, error)` - Get bank by code
+These functions work with a preloaded global instance:
+
+- `AllBanks() map[string]*Bank` - Get all banks
+- `FindBank(code string) (*Bank, error)` - Find bank by code
 - `FindBanksByName(pattern string) ([]*Bank, error)` - Find banks by name pattern (regex)
-- `GetBranch(bankCode, branchCode string) (*Branch, error)` - Get branch by bank code and branch code
+- `FindBranch(bankCode, branchCode string) (*Branch, error)` - Find branch by bank code and branch code
 - `FindBranchesByName(bankCode, pattern string) ([]*Branch, error)` - Find branches by name pattern (regex)
-- `GetAllBanks() map[string]*Bank` - Get all banks
-- `GetAllBranches(bankCode string) (map[string]*Branch, error)` - Get all branches for a bank
+- `AllBranches(bankCode string) (map[string]*Branch, error)` - Get all branches for a bank
+
+### Advanced: Custom Instance
+
+For advanced use cases (e.g., testing, custom data sources), you can create your own instance:
+
+```go
+z, err := zengin.New()
+if err != nil {
+    panic(err)
+}
+bank, _ := z.GetBank("0001")
+```
+
+The instance methods mirror the package-level functions. See [GoDoc](https://pkg.go.dev/github.com/hacomono-lib/zengin-go) for details.
 
 ## Data
 

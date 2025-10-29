@@ -12,15 +12,26 @@ import (
 //go:embed source-data/data/branches/*.json
 var dataFS embed.FS
 
+// defaultZengin is the global instance, preloaded on init
+var defaultZengin *Zengin
+
+func init() {
+	var err error
+	defaultZengin, err = New()
+	if err != nil {
+		panic(fmt.Sprintf("failed to preload zengin data: %v", err))
+	}
+}
+
 // Zengin represents the main zengin code library
 type Zengin struct {
-	banks map[string]*BankWithBranches
+	banks map[string]*Bank
 }
 
 // New creates a new Zengin instance
 func New() (*Zengin, error) {
 	z := &Zengin{
-		banks: make(map[string]*BankWithBranches),
+		banks: make(map[string]*Bank),
 	}
 
 	if err := z.loadBanks(); err != nil {
@@ -45,17 +56,14 @@ func (z *Zengin) loadBanks() error {
 
 	// Load each bank's branches
 	for code, bank := range banksMap {
-		bankWithBranches := &BankWithBranches{
-			Bank:     *bank,
-			Branches: make(map[string]*Branch),
-		}
+		bank.Branches = make(map[string]*Branch)
 
 		// Load branch data
 		branchFile := fmt.Sprintf("source-data/data/branches/%s.json", code)
 		branchData, err := dataFS.ReadFile(branchFile)
 		if err != nil {
 			// Some banks might not have branch data, skip them
-			z.banks[code] = bankWithBranches
+			z.banks[code] = bank
 			continue
 		}
 
@@ -64,8 +72,13 @@ func (z *Zengin) loadBanks() error {
 			return fmt.Errorf("failed to unmarshal %s: %w", branchFile, err)
 		}
 
-		bankWithBranches.Branches = branchesMap
-		z.banks[code] = bankWithBranches
+		// Set up bidirectional relationship
+		for _, branch := range branchesMap {
+			branch.Bank = bank
+		}
+
+		bank.Branches = branchesMap
+		z.banks[code] = bank
 	}
 
 	return nil
@@ -77,7 +90,7 @@ func (z *Zengin) GetBank(code string) (*Bank, error) {
 	if !exists {
 		return nil, errors.New("bank not found")
 	}
-	return &bank.Bank, nil
+	return bank, nil
 }
 
 // FindBanksByName finds banks by name pattern (regex)
@@ -90,8 +103,7 @@ func (z *Zengin) FindBanksByName(pattern string) ([]*Bank, error) {
 	var results []*Bank
 	for _, bank := range z.banks {
 		if re.MatchString(bank.Name) {
-			bankCopy := bank.Bank
-			results = append(results, &bankCopy)
+			results = append(results, bank)
 		}
 	}
 
@@ -137,12 +149,7 @@ func (z *Zengin) FindBranchesByName(bankCode, pattern string) ([]*Branch, error)
 
 // GetAllBanks returns all banks
 func (z *Zengin) GetAllBanks() map[string]*Bank {
-	banks := make(map[string]*Bank)
-	for code, bank := range z.banks {
-		bankCopy := bank.Bank
-		banks[code] = &bankCopy
-	}
-	return banks
+	return z.banks
 }
 
 // GetAllBranches returns all branches for a specific bank
@@ -152,4 +159,36 @@ func (z *Zengin) GetAllBranches(bankCode string) (map[string]*Branch, error) {
 		return nil, errors.New("bank not found")
 	}
 	return bank.Branches, nil
+}
+
+// Package-level functions using the global instance (similar to ZenginCode::Bank.all in Ruby)
+
+// AllBanks returns all banks from the global instance
+func AllBanks() map[string]*Bank {
+	return defaultZengin.GetAllBanks()
+}
+
+// FindBank returns a bank by its code from the global instance
+func FindBank(code string) (*Bank, error) {
+	return defaultZengin.GetBank(code)
+}
+
+// FindBanksByName finds banks by name pattern (regex) from the global instance
+func FindBanksByName(pattern string) ([]*Bank, error) {
+	return defaultZengin.FindBanksByName(pattern)
+}
+
+// FindBranch returns a branch by bank code and branch code from the global instance
+func FindBranch(bankCode, branchCode string) (*Branch, error) {
+	return defaultZengin.GetBranch(bankCode, branchCode)
+}
+
+// FindBranchesByName finds branches by bank code and name pattern (regex) from the global instance
+func FindBranchesByName(bankCode, pattern string) ([]*Branch, error) {
+	return defaultZengin.FindBranchesByName(bankCode, pattern)
+}
+
+// AllBranches returns all branches for a specific bank from the global instance
+func AllBranches(bankCode string) (map[string]*Branch, error) {
+	return defaultZengin.GetAllBranches(bankCode)
 }
