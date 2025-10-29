@@ -1,3 +1,5 @@
+version: 2
+
 run:
   timeout: 5m
   go: '1.23'
@@ -5,8 +7,6 @@ run:
 linters:
   enable:
     # Basic
-    - gofmt
-    - goimports
     - govet
     - errcheck
     - staticcheck
@@ -18,7 +18,6 @@ linters:
     - gocritic
     - gocyclo
     - dupl
-    - gosimple
     
     # Security
     - gosec
@@ -28,7 +27,6 @@ linters:
     - unparam
     - nakedret
     - prealloc
-    - exportloopref
     
     # Error handling
     - errorlint
@@ -39,12 +37,6 @@ linters-settings:
     enable-all: true
     disable:
       - shadow
-  
-  gofmt:
-    simplify: true
-  
-  goimports:
-    local-prefixes: github.com/hacomono-lib/zengin-go
   
   misspell:
     locale: US
