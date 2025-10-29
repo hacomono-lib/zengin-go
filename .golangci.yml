@@ -7,7 +7,6 @@ run:
 linters:
   enable:
     # Basic
-    - gofmt
     - goimports
     - govet
     - errcheck
@@ -41,9 +40,6 @@ linters-settings:
     enable-all: true
     disable:
       - shadow
-  
-  gofmt:
-    simplify: true
   
   goimports:
     local-prefixes: github.com/hacomono-lib/zengin-go
