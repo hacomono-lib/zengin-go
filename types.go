@@ -2,11 +2,11 @@ package zengin
 
 // Bank represents a bank information
 type Bank struct {
-	Code     string              `json:"code"`
-	Name     string              `json:"name"`
-	Kana     string              `json:"kana"`
-	Hira     string              `json:"hira"`
-	Roma     string              `json:"roma"`
+	Code     string             `json:"code"`
+	Name     string             `json:"name"`
+	Kana     string             `json:"kana"`
+	Hira     string             `json:"hira"`
+	Roma     string             `json:"roma"`
 	Branches map[string]*Branch `json:"branches,omitempty"`
 }
 

@@ -13,23 +13,14 @@
 //	banks := zengin.AllBanks()
 //	fmt.Printf("Total banks: %d\n", len(banks))
 //
-//	// Find bank by code
+//	// Get bank by code
 //	bank, err := zengin.FindBank("0001")
 //	if err != nil {
 //		log.Fatal(err)
 //	}
 //	fmt.Printf("Bank: %s\n", bank.Name)
 //
-//	// Search banks by name pattern (regex)
-//	banks, err := zengin.FindBanksByName(".*みずほ.*")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	for _, bank := range banks {
-//		fmt.Printf("Found: %s\n", bank.Name)
-//	}
-//
-//	// Find branch by bank code and branch code
+//	// Get branch by bank code and branch code
 //	branch, err := zengin.FindBranch("0001", "001")
 //	if err != nil {
 //		log.Fatal(err)
@@ -47,7 +38,7 @@
 //	if err != nil {
 //		log.Fatal(err)
 //	}
-//	bank, _ := z.GetBank("0001")
+//	bank, _ := z.FindBank("0001")
 //
 // # Data Source
 //

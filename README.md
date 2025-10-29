@@ -32,40 +32,23 @@ func main() {
     banks := zengin.AllBanks()
     fmt.Printf("Total banks: %d\n", len(banks))
 
-    // Find bank by code
+    // Get bank by code
     bank, err := zengin.FindBank("0001")
     if err != nil {
         panic(err)
     }
-    fmt.Printf("Found bank: %s\n", bank.Name)
+    fmt.Printf("Bank: %s\n", bank.Name)
+    fmt.Printf("Bank has %d branches\n", len(bank.Branches))
 
-    // Find banks by name pattern (regex)
-    banks, err := zengin.FindBanksByName(".*みずほ.*")
-    if err != nil {
-        panic(err)
-    }
-    for _, bank := range banks {
-        fmt.Printf("Found bank: %s\n", bank.Name)
-    }
-
-    // Find branch by bank code and branch code
+    // Get branch by bank code and branch code
     branch, err := zengin.FindBranch("0001", "001")
     if err != nil {
         panic(err)
     }
-    fmt.Printf("Found branch: %s\n", branch.Name)
+    fmt.Printf("Branch: %s\n", branch.Name)
     
     // Branch has reference to Bank (bidirectional relationship)
     fmt.Printf("Branch's bank: %s\n", branch.Bank.Name)
-
-    // Find branches by name pattern (regex)
-    branches, err := zengin.FindBranchesByName("0001", ".*本店.*")
-    if err != nil {
-        panic(err)
-    }
-    for _, branch := range branches {
-        fmt.Printf("Found branch: %s\n", branch.Name)
-    }
     
     // Get all branches for a bank
     allBranches, err := zengin.AllBranches("0001")
@@ -80,7 +63,6 @@ func main() {
 
 - 🚀 Zero external dependencies (data is embedded using go:embed)
 - 📦 Full support for all Japanese banks and branches
-- 🔍 Powerful search capabilities with regex support
 - 🔄 Bidirectional relationship between Bank and Branch
 - 🎯 Simple API - just import and use (similar to zengin-rb)
 - 🧪 Comprehensive test coverage
@@ -197,21 +179,21 @@ All checks must pass before merging pull requests.
 
 ```go
 type Bank struct {
-    Code     string              `json:"code"`               // Bank code
-    Name     string              `json:"name"`               // Bank name
-    Kana     string              `json:"kana"`               // Katakana
-    Hira     string              `json:"hira"`               // Hiragana
-    Roma     string              `json:"roma"`               // Romaji
+    Code     string                 `json:"code"`               // Bank code
+    Name     string                 `json:"name"`               // Bank name
+    Kana     string                 `json:"kana"`               // Katakana
+    Hira     string                 `json:"hira"`               // Hiragana
+    Roma     string                 `json:"roma"`               // Romaji
     Branches map[string]*Branch `json:"branches,omitempty"` // Branches (key: branch code)
 }
 
 type Branch struct {
-    Bank *Bank  `json:"-"`    // Reference to parent bank (bidirectional)
-    Code string `json:"code"` // Branch code
-    Name string `json:"name"` // Branch name
-    Kana string `json:"kana"` // Katakana
-    Hira string `json:"hira"` // Hiragana
-    Roma string `json:"roma"` // Romaji
+    Bank *Bank `json:"-"`    // Reference to parent bank (bidirectional)
+    Code string    `json:"code"` // Branch code
+    Name string    `json:"name"` // Branch name
+    Kana string    `json:"kana"` // Katakana
+    Hira string    `json:"hira"` // Hiragana
+    Roma string    `json:"roma"` // Romaji
 }
 ```
 
@@ -221,9 +203,7 @@ These functions work with a preloaded global instance:
 
 - `AllBanks() map[string]*Bank` - Get all banks
 - `FindBank(code string) (*Bank, error)` - Find bank by code
-- `FindBanksByName(pattern string) ([]*Bank, error)` - Find banks by name pattern (regex)
 - `FindBranch(bankCode, branchCode string) (*Branch, error)` - Find branch by bank code and branch code
-- `FindBranchesByName(bankCode, pattern string) ([]*Branch, error)` - Find branches by name pattern (regex)
 - `AllBranches(bankCode string) (map[string]*Branch, error)` - Get all branches for a bank
 
 ### Advanced: Custom Instance
@@ -235,7 +215,7 @@ z, err := zengin.New()
 if err != nil {
     panic(err)
 }
-bank, _ := z.GetBank("0001")
+bank, _ := z.FindBank("0001")
 ```
 
 The instance methods mirror the package-level functions. See [GoDoc](https://pkg.go.dev/github.com/hacomono-lib/zengin-go) for details.

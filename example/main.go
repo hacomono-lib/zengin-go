@@ -17,8 +17,8 @@ func main() {
 	fmt.Printf("Total banks: %d\n", len(allBanks))
 	fmt.Println()
 
-	// Example 2: Find bank by code
-	fmt.Println("=== Example 2: Find bank by code ===")
+	// Example 2: Get bank by code
+	fmt.Println("=== Example 2: Get bank by code ===")
 	bank, err := zengin.FindBank("0001")
 	if err != nil {
 		log.Fatal(err)
@@ -31,19 +31,8 @@ func main() {
 	fmt.Printf("Total branches: %d\n", len(bank.Branches))
 	fmt.Println()
 
-	// Example 3: Find banks by name pattern
-	fmt.Println("=== Example 3: Find banks by name pattern ===")
-	banks, err := zengin.FindBanksByName(".*みずほ.*")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, b := range banks {
-		fmt.Printf("Found bank: %s (%s)\n", b.Name, b.Code)
-	}
-	fmt.Println()
-
-	// Example 4: Find branch by bank code and branch code
-	fmt.Println("=== Example 4: Find branch by bank code and branch code ===")
+	// Example 3: Get branch by bank code and branch code
+	fmt.Println("=== Example 3: Get branch by bank code and branch code ===")
 	branch, err := zengin.FindBranch("0001", "001")
 	if err != nil {
 		log.Fatal(err)
@@ -57,37 +46,33 @@ func main() {
 	fmt.Printf("Branch's bank: %s (%s)\n", branch.Bank.Name, branch.Bank.Code)
 	fmt.Println()
 
-	// Example 5: Find branches by name pattern
-	fmt.Println("=== Example 5: Find branches by name pattern ===")
-	branches, err := zengin.FindBranchesByName("0001", ".*東京.*")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Found %d branches with '東京' in name:\n", len(branches))
-	for i, br := range branches {
-		if i >= 5 { // Show only first 5
-			fmt.Println("...")
-			break
-		}
-		fmt.Printf("  - %s (%s)\n", br.Name, br.Code)
-	}
-	fmt.Println()
-
-	// Example 6: Get all branches for a bank
-	fmt.Println("=== Example 6: Get all branches for a bank ===")
+	// Example 4: Get all branches for a bank
+	fmt.Println("=== Example 4: Get all branches for a bank ===")
 	allBranches, err := zengin.AllBranches("0001")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Total branches for bank 0001: %d\n", len(allBranches))
+	
+	// Show first 5 branches
+	count := 0
+	for _, br := range allBranches {
+		if count >= 5 {
+			fmt.Println("...")
+			break
+		}
+		fmt.Printf("  - %s (%s)\n", br.Name, br.Code)
+		count++
+	}
 	fmt.Println()
 
-	// You can also use instance methods if needed
-	fmt.Println("=== Using Instance Methods ===")
+	// Example 5: Using instance methods (advanced)
+	fmt.Println("=== Example 5: Using instance methods (advanced) ===")
 	z, err := zengin.New()
 	if err != nil {
 		log.Fatal(err)
 	}
-	bank2, _ := z.GetBank("0005")
+	bank2, _ := z.FindBank("0005")
 	fmt.Printf("Bank from instance: %s (%s)\n", bank2.Name, bank2.Code)
 }
+
