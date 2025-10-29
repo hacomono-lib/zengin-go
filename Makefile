@@ -20,14 +20,16 @@ test-cover: test
 example:
 	cd example && go run main.go
 
-# Submodule management
-.PHONY: update-submodule
-update-submodule:
-	git submodule update --remote --merge source-data
-
-.PHONY: init-submodule
-init-submodule:
-	git submodule update --init --recursive
+# Data management
+.PHONY: update-data
+update-data:
+	@echo "Fetching latest source-data..."
+	@rm -rf /tmp/source-data
+	@git clone --depth=1 https://github.com/zengin-code/source-data.git /tmp/source-data
+	@rm -rf data
+	@cp -r /tmp/source-data/data data
+	@rm -rf /tmp/source-data
+	@echo "Data updated successfully!"
 
 # Code quality
 .PHONY: fmt
@@ -143,9 +145,8 @@ help:
 	@echo "  docker-example   - Run example in Docker"
 	@echo "  docker-clean     - Clean Docker containers and volumes"
 	@echo ""
-	@echo "Submodules:"
-	@echo "  init-submodule   - Initialize source-data submodule"
-	@echo "  update-submodule - Update source-data submodule"
+	@echo "Data Management:"
+	@echo "  update-data      - Update bank and branch data from source-data"
 	@echo ""
 	@echo "CI/CD:"
 	@echo "  ci               - Run all checks (fmt, vet, lint, test, security)"

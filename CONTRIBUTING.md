@@ -73,27 +73,22 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
    cd zengin-go
    ```
 
-2. Initialize submodules:
-   ```bash
-   make init-submodule
-   ```
-
-3. Install development tools:
+2. Install development tools:
    ```bash
    make install-tools
    ```
 
-4. Run tests:
+3. Run tests:
    ```bash
    make test
    ```
 
-5. Run all checks:
+4. Run all checks:
    ```bash
    make ci
    ```
 
-6. Run example:
+5. Run example:
    ```bash
    make example
    ```

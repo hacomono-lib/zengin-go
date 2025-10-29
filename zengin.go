@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-//go:embed source-data/data/banks.json
-//go:embed source-data/data/branches/*.json
+//go:embed data/banks.json
+//go:embed data/branches/*.json
 var dataFS embed.FS
 
 // defaultZengin is the global instance, preloaded on init
@@ -43,7 +43,7 @@ func New() (*Zengin, error) {
 // loadBanks loads all bank data from embedded JSON
 func (z *Zengin) loadBanks() error {
 	// Load banks.json
-	banksData, err := dataFS.ReadFile("source-data/data/banks.json")
+	banksData, err := dataFS.ReadFile("data/banks.json")
 	if err != nil {
 		return fmt.Errorf("failed to read banks.json: %w", err)
 	}
@@ -58,7 +58,7 @@ func (z *Zengin) loadBanks() error {
 		bank.Branches = make(map[string]*Branch)
 
 		// Load branch data
-		branchFile := fmt.Sprintf("source-data/data/branches/%s.json", code)
+		branchFile := fmt.Sprintf("data/branches/%s.json", code)
 		branchData, err := dataFS.ReadFile(branchFile)
 		if err != nil {
 			// Some banks might not have branch data, skip them

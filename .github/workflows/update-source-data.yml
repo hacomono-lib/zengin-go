@@ -18,17 +18,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: true
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Update submodule
+      - name: Fetch latest source-data
         run: |
-          git submodule update --remote --merge source-data
+          # Clone the source-data repository
+          git clone --depth=1 https://github.com/zengin-code/source-data.git /tmp/source-data
+          
+          # Remove old data directory
+          rm -rf data
+          
+          # Copy only the data directory from source-data
+          cp -r /tmp/source-data/data data
+          
+          # Clean up
+          rm -rf /tmp/source-data
       
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet; then
+          if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -49,10 +58,10 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update source-data'
-          title: 'chore: update source-data'
+          commit-message: 'chore: update bank and branch data'
+          title: 'chore: update bank and branch data'
           body: |
-            This PR updates the source-data submodule to the latest version.
+            This PR updates the bank and branch data from zengin-code/source-data.
             
             Please review the changes and merge if everything looks good.
           branch: update-source-data
