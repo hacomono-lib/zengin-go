@@ -82,9 +82,6 @@ func main() {
 git clone https://github.com/hacomono-lib/zengin-go.git
 cd zengin-go
 
-# Initialize submodules
-make init-submodule
-
 # Install development tools
 make install-tools
 ```
@@ -110,8 +107,8 @@ make ci
 # Run example
 make example
 
-# Update source-data submodule
-make update-submodule
+# Update bank and branch data
+make update-data
 
 # Format code
 make fmt
